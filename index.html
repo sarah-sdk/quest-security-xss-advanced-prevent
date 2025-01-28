@@ -80,6 +80,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.0.10/dist/purify.min.js"></script>
     <script>
 
         // General URL settings (boring stuff)
@@ -96,7 +97,7 @@
             userName = userParam;
         }
 
-        document.getElementById("welcome-text").innerHTML = "<h1>How do you do, " + userName + "?</h1>";
+        document.getElementById("welcome-text").innerHTML = DOMPurify.sanitize("<h1>How do you do, " + userName + "?</h1>");
 
         //  XSS vulnerability #2
 
@@ -106,7 +107,7 @@
         input.addEventListener("input", updateValue);
 
         function updateValue(e) {
-            log.innerHTML = e.target.value;
+            log.innerText = e.target.value;
         }
 
         //  XSS vulnerability #3
@@ -118,14 +119,20 @@
         showButton.addEventListener("click", showHTML);
 
         function showHTML() {
-            htmlOutput.innerHTML = htmlInput.value;
+            const sanitizedHTML = DOMPurify.sanitize(htmlInput.value);
+            htmlOutput.innerHTML = sanitizedHTML;
         }
 
         //  XSS vulnerability #4
 
         const redir = params.get("goto");
         if (redir !== null && redir !== "null") {
+          const isSafeUrl = /^https?:\/\//.test(redir);
+          if (isSafeUrl) {
             document.location = redir;
+          } else {
+            alert('Redirection bloquée : URL invalide.')
+          }
         }
 
     </script>
